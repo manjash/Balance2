@@ -1,0 +1,96 @@
+from typing import Any, List, Tuple
+
+from fastapi import APIRouter, Body, Depends, HTTPException
+from fastapi.encoders import jsonable_encoder
+from pydantic.networks import EmailStr
+from sqlalchemy.orm import Session
+
+from app import crud, models, schemas
+
+from app.api import deps
+from uuid import UUID
+from .balance import add_to_balance
+from app.core.config import settings
+from app.core import security
+from app.utilities import (
+    send_new_account_email,
+)
+
+router = APIRouter()
+
+
+@router.post("/", response_model=Tuple[schemas.Transaction, schemas.TransactionEvent])
+def create_transaction(
+    *,
+    db: Session = Depends(deps.get_db),
+    # current_user: models.User = Depends(deps.get_current_active_user),
+    gateway: str = Body(...),
+    method: str = Body(...),
+    description: str = Body(...),
+    data: dict = Body(...),
+    type: str = Body(...),
+    amount: int = Body(...),
+    currency: str = Body(...),
+    category: str = Body(...),
+    user_id: str = Body(...),
+    gateway_id: str = Body(...),
+) -> Any:
+    """
+    Create a new transaction.
+    """
+    transaction_in = schemas.TransactionCreate(gateway=gateway,
+                                               method=method,
+                                               description=description,
+                                               data=data,
+                                               )
+    transaction = crud.transaction.create(db, obj_in=transaction_in)
+    transaction_event_in = schemas.TransactionEventCreate(
+                                            transaction_id=transaction.id,
+                                            type=type,
+                                            amount=amount,
+                                            currency=currency,
+                                            category=category,
+                                            user_id=UUID(user_id),
+                                            gateway_id=gateway_id,
+                                            )
+    transaction_event = crud.transaction_event.create(db, obj_in=transaction_event_in)
+    return transaction, transaction_event
+
+"""
+We already have a transaction in a type=captured state, the money is on the
+company's account. Now money has to be added to the user's account -->
+We'll send user_id, amount. And want to see balance before and after
+
+"""
+
+
+@router.post("/captured_to_balance", response_model=Tuple[
+                                            schemas.Balance,
+                                            schemas.TransactionEvent]
+             )
+def captured_money_to_balance(
+    *,
+    db: Session = Depends(deps.get_db),
+    # current_user: models.User = Depends(deps.get_current_active_user),
+    transaction_id: str = Body(...),
+) -> Any:
+    """
+    Add money to balance and link a transaction to balance that receives the money.
+    status of the transaction (captured or not) checked by some other service
+    """
+
+    transaction_in = crud.transaction_event.get_by_transaction_id(
+                                db,
+                                transaction_id=transaction_id
+                                )
+
+    balance_in = add_to_balance(db=db,
+                                user_id=str(transaction_in.user_id),
+                                amount=transaction_in.amount
+                                )[1]
+    crud.transaction_event.link_transaction_balance(
+                                db,
+                                transaction_id=transaction_id,
+                                balance_id=balance_in.id
+                                )
+    return balance_in, transaction_in
