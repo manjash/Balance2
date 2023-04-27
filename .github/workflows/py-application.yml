@@ -27,17 +27,17 @@ jobs:
     - name: Analysing the code with pylint
       run: |
         flake8 --extend-exclude=/.venv/ --max-line-length=120 backend/app/app/
-    - name: Build docker
+#    - name: Build docker
+#      run: |
+#        docker compose build
+    - name: Build docker and launch docker app
       run: |
-        docker compose build
-    - name: Launch docker app
-      run: |
-#        docker compose -f "docker-compose.yml" up --build -d
-        docker compose up -d
+        docker compose -f "docker-compose.yml" up --build -d
+#        docker compose up -d
     - name: Sleep for 10 seconds
       run: sleep 10s
       shell: bash
-    - name: Test with flake8
+    - name: Test with pytest
       run: |
         docker compose exec app sh scripts/test.sh -vv
         coverage report
