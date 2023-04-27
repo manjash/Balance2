@@ -21,7 +21,7 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install flake8 pytest coverage
-        poetry --project-file backend/app/pyproject.toml install --no-interaction
+        poetry --project-file=backend/app/pyproject.toml install --no-interaction
     - name: Analysing the code with pylint
       run: |
         flake8 --extend-exclude=/.venv/ --max-line-length=120 backend/app/app/
