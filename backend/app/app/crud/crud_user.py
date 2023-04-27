@@ -2,10 +2,10 @@ from typing import Any, Dict, Optional, Union
 
 from sqlalchemy.orm import Session
 
-from app.core.security import get_password_hash, verify_password, create_new_totp
+from app.core.security import get_password_hash, verify_password
 from app.crud.base import CRUDBase
 from app.models.user import User
-from app.schemas.user import UserCreate, UserInDB, UserUpdate, UserInDBBase
+from app.schemas.user import UserCreate, UserInDB, UserUpdate
 from app.schemas.totp import NewTOTP
 from uuid import UUID
 
@@ -13,9 +13,15 @@ from uuid import UUID
 class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
     def get_by_email(self, db: Session, *, email: str) -> Optional[User]:
         return db.query(User).filter(User.email == email).first()
+        # if not db_obj:
+        #     return HTTPException(status_code=400, detail=f"The user doesn't exist")
+        # return db_obj
 
     def get_by_user_id(self, db: Session, *, user_id: UUID) -> Optional[User]:
-        return db.query(User).filter(User.id == user_id).first()
+        return super().get(db, id=user_id)
+        # if not db_obj:
+        #     return HTTPException(status_code=400, detail=f"The user doesn't exist")
+        # return db_obj
 
     def create(self, db: Session, *, obj_in: UserCreate) -> User:
         db_obj = User(
@@ -25,10 +31,7 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         )
         if obj_in.password:
             db_obj.hashed_password = get_password_hash(obj_in.password)
-        db.add(db_obj)
-        db.commit()
-        db.refresh(db_obj)
-        return db_obj
+        return super().create(db, obj_in=db_obj)
 
     def update(self, db: Session, *, db_obj: User, obj_in: Union[UserUpdate, Dict[str, Any]]) -> User:
         if isinstance(obj_in, dict):

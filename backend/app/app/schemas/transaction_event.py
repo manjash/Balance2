@@ -1,5 +1,5 @@
 from typing import Optional
-from pydantic import BaseModel, Field, constr
+from pydantic import BaseModel, Field
 from uuid import UUID
 
 
@@ -7,7 +7,7 @@ from uuid import UUID
 class TransactionEventBase(BaseModel):
     transaction_id: UUID = None
     type: str = None
-    amount: int = None
+    amount: float = None
     currency: str = None
     category: str = None
     user_id: UUID = None
@@ -18,7 +18,7 @@ class TransactionEventBase(BaseModel):
 class TransactionEventCreate(TransactionEventBase):
     transaction_id: UUID
     type: str
-    amount: int
+    amount: float
     currency: str
     category: str
     user_id: UUID
@@ -28,13 +28,13 @@ class TransactionEventCreate(TransactionEventBase):
 # Properties to receive via API on update
 class TransactionEventUpdate(TransactionEventBase):
     original: None
-    transaction_id: None
-    type: None
-    amount: None
-    currency:  None
-    category:  None
-    user_id: None
-    gateway_id: None
+    transaction_id: UUID = None
+    type: str = None
+    amount: float = None
+    currency: str = None
+    category: str = None
+    user_id: UUID = None
+    gateway_id: str = None
 
 
 class TransactionEventInDBBase(TransactionEventBase):
@@ -48,7 +48,7 @@ class TransactionEventInDBBase(TransactionEventBase):
 class TransactionEvent(TransactionEventInDBBase):
     transaction_id: UUID = Field(default=False)
     type: str = Field(default=False)
-    amount: int = Field(default=False)
+    amount: float = Field(default=False)
     currency: str = Field(default=False)
     category: str = Field(default=False)
     user_id: UUID = Field(default=False)

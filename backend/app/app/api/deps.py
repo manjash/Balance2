@@ -10,6 +10,8 @@ from app import crud, models, schemas
 from app.core.config import settings
 from app.db.session import SessionLocal
 
+import json
+
 reusable_oauth2 = OAuth2PasswordBearer(tokenUrl=f"{settings.API_V1_STR}/login/access-token")
 
 
@@ -131,3 +133,9 @@ def get_active_websocket_user(*, db: Session, token: str) -> models.User:
     if not crud.user.is_active(user):
         raise ValidationError("Inactive user")
     return user
+
+
+def json_error(error, status=400) -> json:
+    """Conversion of a string error message into a dict"""
+    return json.dumps({'Error': error, "Status": status})
+#

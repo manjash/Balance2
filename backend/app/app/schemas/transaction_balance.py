@@ -1,11 +1,6 @@
 from typing import Optional
-from pydantic import BaseModel, Field, constr, validator
+from pydantic import BaseModel, Field
 from uuid import UUID
-
-
-# class UserLogin(BaseModel):
-#     username: str
-#     password: str
 
 
 # Shared properties
@@ -17,14 +12,14 @@ class TransactionBalanceBase(BaseModel):
 # Properties to receive via API on creation
 class TransactionBalanceCreate(TransactionBalanceBase):
     transaction_id: UUID
-    balance_id: int
+    balance_id: UUID
 
 
 # Properties to receive via API on update
 class TransactionBalanceUpdate(TransactionBalanceBase):
     original: None
-    transaction_id: None
-    balance_id: None
+    transaction_id: UUID = None
+    balance_id: UUID = None
 
 
 class TransactionBalanceInDBBase(TransactionBalanceBase):
@@ -41,8 +36,3 @@ class TransactionBalance(TransactionBalanceInDBBase):
 
     class Config:
         allow_population_by_field_name = True
-
-#
-# # Additional properties stored in DB
-# class BalanceInDB(BalanceInDBBase):
-#     user_id: UUID = None

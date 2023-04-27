@@ -17,7 +17,8 @@ https://github.com/OWASP/CheatSheetSeries/blob/master/cheatsheets/Password_Stora
 https://blog.cloudflare.com/ensuring-randomness-with-linuxs-random-number-generator/
 https://passlib.readthedocs.io/en/stable/lib/passlib.pwd.html
 Specifies minimum criteria:
-    - Use Argon2id with a minimum configuration of 15 MiB of memory, an iteration count of 2, and 1 degree of parallelism.
+    - Use Argon2id with a minimum configuration of 15 MiB of memory, an iteration count of 2, and 1 degree
+    of parallelism.
     - Passwords shorter than 8 characters are considered to be weak (NIST SP800-63B).
     - Maximum password length of 64 prevents long password Denial of Service attacks.
     - Do not silently truncate passwords.

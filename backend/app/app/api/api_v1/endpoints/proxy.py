@@ -52,4 +52,3 @@ async def proxy_get_request(
         return response
     except Exception as e:
         raise HTTPException(status_code=403, detail=str(e))
-

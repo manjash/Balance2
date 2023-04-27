@@ -1,20 +1,14 @@
-from typing import Any, List, Tuple
+from typing import Any, Tuple
 
-from fastapi import APIRouter, Body, Depends, HTTPException
-from fastapi.encoders import jsonable_encoder
-from pydantic.networks import EmailStr
+from fastapi import APIRouter, Body, Depends
 from sqlalchemy.orm import Session
 
-from app import crud, models, schemas
+from app import crud, schemas
 
 from app.api import deps
 from uuid import UUID
 from .balance import add_to_balance
-from app.core.config import settings
-from app.core import security
-from app.utilities import (
-    send_new_account_email,
-)
+
 
 router = APIRouter()
 
@@ -23,13 +17,12 @@ router = APIRouter()
 def create_transaction(
     *,
     db: Session = Depends(deps.get_db),
-    # current_user: models.User = Depends(deps.get_current_active_user),
     gateway: str = Body(...),
     method: str = Body(...),
     description: str = Body(...),
     data: dict = Body(...),
     type: str = Body(...),
-    amount: int = Body(...),
+    amount: float = Body(...),
     currency: str = Body(...),
     category: str = Body(...),
     user_id: str = Body(...),
@@ -56,6 +49,7 @@ def create_transaction(
     transaction_event = crud.transaction_event.create(db, obj_in=transaction_event_in)
     return transaction, transaction_event
 
+
 """
 We already have a transaction in a type=captured state, the money is on the
 company's account. Now money has to be added to the user's account -->
@@ -71,7 +65,6 @@ We'll send user_id, amount. And want to see balance before and after
 def captured_money_to_balance(
     *,
     db: Session = Depends(deps.get_db),
-    # current_user: models.User = Depends(deps.get_current_active_user),
     transaction_id: str = Body(...),
 ) -> Any:
     """
@@ -88,9 +81,11 @@ def captured_money_to_balance(
                                 user_id=str(transaction_in.user_id),
                                 amount=transaction_in.amount
                                 )[1]
-    crud.transaction_event.link_transaction_balance(
+    crud.transaction_balance.create(
                                 db,
-                                transaction_id=transaction_id,
-                                balance_id=balance_in.id
+                                obj_in=schemas.TransactionBalance(
+                                    transaction_id=transaction_id,
+                                    balance_id=balance_in.id,
+                                )
                                 )
     return balance_in, transaction_in

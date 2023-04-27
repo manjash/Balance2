@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, Tuple
 
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
@@ -6,7 +6,9 @@ from sqlalchemy.orm import Session
 from app import crud
 from app.core.config import settings
 from app.models.user import User
+from app.models.balance import Balance
 from app.schemas.user import UserCreate, UserUpdate
+from app.schemas.balance import BalanceCreate
 from app.tests.utils.utils import random_email, random_lower_string
 
 
@@ -15,7 +17,7 @@ def user_authentication_headers(
 ) -> Dict[str, str]:
     data = {"username": email, "password": password}
 
-    r = client.post(f"{settings.API_V1_STR}/login/access-token", data=data)
+    r = client.post(f"{settings.API_V1_STR}/login/oauth", data=data)
     response = r.json()
     auth_token = response["access_token"]
     headers = {"Authorization": f"Bearer {auth_token}"}
@@ -28,6 +30,32 @@ def create_random_user(db: Session) -> User:
     user_in = UserCreate(username=email, email=email, password=password)
     user = crud.user.create(db=db, obj_in=user_in)
     return user
+
+
+def create_random_user_with_balance(db: Session, amount=0) -> Tuple[User, Balance]:
+    user = create_random_user(db)
+    balance_in = BalanceCreate(user_id=str(user.id), amount=amount)
+    balance = crud.balance.create(db, obj_in=balance_in)
+    return user, balance
+
+
+def create_random_user_with_balance_reserve(
+        db: Session,
+        amount=0.,
+        amount_reserved=0.,
+) -> Tuple[User, Balance]:
+    user = create_random_user(db)
+    balance_in = BalanceCreate(
+        user_id=str(user.id),
+        amount=amount,
+    )
+    balance = crud.balance.create(db, obj_in=balance_in)
+    balance = crud.balance\
+        .update(db,
+                db_obj=balance,
+                obj_in={"amount_reserved": amount_reserved}
+                )
+    return user, balance
 
 
 def authentication_token_from_email(

@@ -68,6 +68,9 @@ Then you can start a shell session with the new environment with:
 
 ```console
 $ poetry shell
+
+(in my case)
+emulate bash -c '. /Users/manjash/Library/Caches/pypoetry/virtualenvs/app-lJaY0Zft-py3.10/bin/activate'
 ```
 
 Next, open your editor at `./backend/app/` (instead of the project root: `./`), so that you see an `./app/` directory with your code inside. That way, your editor will be able to find all the imports, etc. Make sure your editor uses the environment you just created with Poetry.

@@ -1,4 +1,4 @@
-from typing import Any, Union, Dict
+from typing import Any
 from pydantic import EmailStr
 
 from fastapi import APIRouter, Body, Depends, HTTPException
@@ -8,11 +8,6 @@ from sqlalchemy.orm import Session
 from app import crud, models, schemas
 from app.api import deps
 from app.core import security
-from app.core.config import settings
-from app.utilities import (
-    send_reset_password_email,
-    send_magic_login_email,
-)
 
 router = APIRouter()
 
@@ -25,7 +20,7 @@ Specifies minimum criteria:
         - The user ID or password was incorrect.
         - The account does not exist.
         - The account is locked or disabled.
-    - Code should go through the same process, no matter what, allowing the application to return in approximately 
+    - Code should go through the same process, no matter what, allowing the application to return in approximately
       the same response time.
     - In the words of George Orwell, break these rules sooner than do something truly barbaric.
 
@@ -47,49 +42,7 @@ def login_with_magic_link(*, db: Session = Depends(deps.get_db), email: EmailStr
         # Still permits a timed-attack, but does create ambiguity.
         raise HTTPException(status_code=400, detail="A link to activate your account has been emailed.")
     tokens = security.create_magic_tokens(subject=user.id)
-    if settings.EMAILS_ENABLED and user.email:
-        # Send email with user.email as subject
-        send_magic_login_email(email_to=user.email, token=tokens[0])
     return {"claim": tokens[1]}
-
-
-@router.post("/claim", response_model=schemas.Token)
-def validate_magic_link(
-    *,
-    db: Session = Depends(deps.get_db),
-    obj_in: schemas.WebToken,
-    magic_in: bool = Depends(deps.get_magic_token),
-) -> Any:
-    """
-    Second step of a 'magic link' login.
-    """
-    claim_in = deps.get_magic_token(token=obj_in.claim)
-    # Get the user
-    user = crud.user.get(db, id=magic_in.sub)
-    # Test the claims
-    if (
-        (claim_in.sub == magic_in.sub)
-        or (claim_in.fingerprint != magic_in.fingerprint)
-        or not user
-        or not crud.user.is_active(user)
-    ):
-        raise HTTPException(status_code=400, detail="Login failed; invalid claim.")
-    # Validate that the email is the user's
-    if not user.email_validated:
-        crud.user.validate_email(db=db, db_obj=user)
-    # Check if totp active
-    refresh_token = None
-    force_totp = True
-    if not user.totp_secret:
-        # No TOTP, so this concludes the login validation
-        force_totp = False
-        refresh_token = security.create_refresh_token(subject=user.id)
-        crud.token.create(db=db, obj_in=refresh_token, user_obj=user)
-    return {
-        "access_token": security.create_access_token(subject=user.id, force_totp=force_totp),
-        "refresh_token": refresh_token,
-        "token_type": "bearer",
-    }
 
 
 @router.post("/oauth", response_model=schemas.Token)
@@ -211,20 +164,6 @@ def revoke_token(
     Revoke a refresh token
     """
     return {"msg": "Token revoked"}
-
-
-@router.post("/recover/{email}", response_model=Union[schemas.WebToken, schemas.Msg])
-def recover_password(email: str, db: Session = Depends(deps.get_db)) -> Any:
-    """
-    Password Recovery
-    """
-    user = crud.user.get_by_email(db, email=email)
-    if user and crud.user.is_active(user):
-        tokens = security.create_magic_tokens(subject=user.id)
-        if settings.EMAILS_ENABLED:
-            send_reset_password_email(email_to=user.email, email=email, token=tokens[0])
-            return {"claim": tokens[1]}
-    return {"msg": "If that login exists, we'll send you an email to reset your password."}
 
 
 @router.post("/reset", response_model=schemas.Msg)

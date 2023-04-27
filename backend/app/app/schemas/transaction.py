@@ -20,13 +20,14 @@ class TransactionCreate(TransactionBase):
     data: dict
     # transaction_event part
 
+
 # Properties to receive via API on update
 class TransactionUpdate(TransactionBase):
     original: None
-    gateway: None
-    method: None
-    description: None
-    data: None
+    gateway: str = None
+    method: str = None
+    description: str = None
+    data: dict = None
 
 
 class TransactionInDBBase(TransactionBase):

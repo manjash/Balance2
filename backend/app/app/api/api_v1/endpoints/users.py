@@ -7,11 +7,7 @@ from sqlalchemy.orm import Session
 
 from app import crud, models, schemas
 from app.api import deps
-from app.core.config import settings
 from app.core import security
-from app.utilities import (
-    send_new_account_email,
-)
 from uuid import UUID
 
 router = APIRouter()
@@ -24,6 +20,7 @@ def create_user_profile(
     password: str = Body(...),
     email: EmailStr = Body(...),
     full_name: str = Body(None),
+
 ) -> Any:
     """
     Create new user without the need to be logged in.
@@ -72,7 +69,7 @@ def update_user(
     return user
 
 
-@router.get("/", response_model=schemas.User)
+@router.get("/me", response_model=schemas.User)
 def read_user(
     *,
     current_user: models.User = Depends(deps.get_current_active_user),
@@ -81,6 +78,19 @@ def read_user(
     Get current user.
     """
     return current_user
+
+
+@router.get("/{user_id}", response_model=schemas.User)
+def get_user_by_user_id(
+        *,
+        db: Session = Depends(deps.get_db),
+        user_id: str,
+        current_user: models.User = Depends(deps.get_current_active_user),
+
+) -> Any:
+    if not isinstance(UUID(user_id), UUID):
+        raise HTTPException(status_code=400, detail="This user_id is invalid.")
+    return crud.user.get_by_user_id(db, user_id=UUID(user_id))
 
 
 @router.get("/all", response_model=List[schemas.User])
@@ -94,6 +104,7 @@ def read_all_users(
     """
     Retrieve all current users.
     """
+    print(deps.get_current_active_superuser)
     return crud.user.get_multi(db=db, skip=skip, limit=limit)
 
 
@@ -147,8 +158,6 @@ def create_user(
             detail="The user with this username already exists in the system.",
         )
     user = crud.user.create(db, obj_in=user_in)
-    if settings.EMAILS_ENABLED and user_in.email:
-        send_new_account_email(email_to=user_in.email, username=user_in.email, password=user_in.password)
     return user
 
 
@@ -158,16 +167,9 @@ def user_in_DB(
         db: Session = Depends(deps.get_db),
         user_id: str = Body(...),
 ) -> Any:
-    try:
-        user_id = UUID(user_id)
-    except:
-        raise HTTPException(
-            status_code=400,
-            detail="This user_id is invalid.",
-        )
-    if not isinstance(user_id, UUID):
-        return False
-    user = crud.user.get_by_user_id(db, user_id=user_id)
+    if not isinstance(UUID(user_id), UUID):
+        raise HTTPException(status_code=400, detail="This user_id is invalid.")
+    user = crud.user.get_by_user_id(db, user_id=UUID(user_id))
     if not user:
         return False
     return True

@@ -16,5 +16,3 @@ class Token(Base):
     is_valid = Column(Boolean, default=True)
     authenticates_id = Column(UUID(as_uuid=True), ForeignKey("user.id"))
     authenticates: Mapped["User"] = relationship(back_populates="refresh_tokens")
-
-

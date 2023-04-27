@@ -1,6 +1,6 @@
 from __future__ import annotations
-from pydantic import BaseModel, Field, validator, constr
-from typing import Optional, List
+from pydantic import BaseModel, Field
+from typing import Optional
 from uuid import UUID
 from datetime import date, datetime
 import json

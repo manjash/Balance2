@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING
 
 from sqlalchemy import Column, DateTime, String, JSON
-from sqlalchemy.orm import relationship, Mapped
+from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.sql import func
 from uuid import uuid4

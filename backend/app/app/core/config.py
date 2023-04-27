@@ -1,7 +1,11 @@
+import os
 import secrets
 from typing import Any, Dict, List, Optional, Union
 
 from pydantic import AnyHttpUrl, BaseSettings, EmailStr, HttpUrl, PostgresDsn, validator
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
 class Settings(BaseSettings):
@@ -13,8 +17,8 @@ class Settings(BaseSettings):
     REFRESH_TOKEN_EXPIRE_SECONDS: int = 60 * 60 * 24 * 30
     JWT_ALGO: str = "HS512"
     TOTP_ALGO: str = "SHA-1"
-    SERVER_NAME: str
-    SERVER_HOST: AnyHttpUrl
+    SERVER_NAME: str = None
+    SERVER_HOST: AnyHttpUrl = None
     SERVER_BOT: str = "Symona"
     # BACKEND_CORS_ORIGINS is a JSON-formatted list of origins
     # e.g: '["http://localhost", "http://localhost:4200", "http://localhost:3000", \
@@ -29,8 +33,8 @@ class Settings(BaseSettings):
             return v
         raise ValueError(v)
 
-    PROJECT_NAME: str
-    SENTRY_DSN: Optional[HttpUrl] = None
+    PROJECT_NAME: str = os.environ["PROJECT_NAME"]
+    SENTRY_DSN: Optional[HttpUrl] = os.environ["SENTRY_DSN"]
 
     @validator("SENTRY_DSN", pre=True)
     def sentry_dsn_can_be_blank(cls, v: str) -> Optional[str]:
@@ -38,10 +42,10 @@ class Settings(BaseSettings):
             return None
         return v
 
-    POSTGRES_SERVER: str
-    POSTGRES_USER: str
-    POSTGRES_PASSWORD: str
-    POSTGRES_DB: str
+    POSTGRES_SERVER: str = os.environ["POSTGRES_SERVER"]
+    POSTGRES_USER: str = os.environ["POSTGRES_USER"]
+    POSTGRES_PASSWORD: str = os.environ["POSTGRES_PASSWORD"]
+    POSTGRES_DB: str = os.environ["POSTGRES_DB"]
     SQLALCHEMY_DATABASE_URI: Optional[PostgresDsn] = None
 
     @validator("SQLALCHEMY_DATABASE_URI", pre=True)
@@ -61,49 +65,11 @@ class Settings(BaseSettings):
     SMTP_HOST: Optional[str] = None
     SMTP_USER: Optional[str] = None
     SMTP_PASSWORD: Optional[str] = None
-    EMAILS_FROM_EMAIL: Optional[EmailStr] = None
-    EMAILS_FROM_NAME: Optional[str] = None
-    EMAILS_TO_EMAIL: Optional[EmailStr] = None
-
-    @validator("EMAILS_FROM_NAME")
-    def get_project_name(cls, v: Optional[str], values: Dict[str, Any]) -> str:
-        if not v:
-            return values["PROJECT_NAME"]
-        return v
-
-    EMAIL_RESET_TOKEN_EXPIRE_HOURS: int = 48
-    EMAIL_TEMPLATES_DIR: str = "/app/app/email-templates/build"
-    EMAILS_ENABLED: bool = False
-
-    @validator("EMAILS_ENABLED", pre=True)
-    def get_emails_enabled(cls, v: bool, values: Dict[str, Any]) -> bool:
-        return bool(
-            values.get("SMTP_HOST")
-            and values.get("SMTP_PORT")
-            and values.get("EMAILS_FROM_EMAIL")
-        )
 
     EMAIL_TEST_USER: EmailStr = "test@example.com"  # type: ignore
-    FIRST_SUPERUSER: EmailStr
-    FIRST_SUPERUSER_PASSWORD: str
+    FIRST_SUPERUSER: EmailStr = os.environ["FIRST_SUPERUSER"]
+    FIRST_SUPERUSER_PASSWORD: str = os.environ["FIRST_SUPERUSER_PASSWORD"]
     USERS_OPEN_REGISTRATION: bool = True
-
-    # NEO4J
-    NEO4J_FORCE_TIMEZONE: Optional[bool] = True
-    NEO4J_AUTO_INSTALL_LABELS: Optional[bool] = True
-    NEO4J_MAX_CONNECTION_POOL_SIZE: Optional[int] = 50
-    NEO4J_SERVER: Optional[str] = "localhost"
-    NEO4J_USERNAME: str
-    NEO4J_PASSWORD: str
-    NEO4J_AUTH: str
-    NEO4J_BOLT: str
-    NEO4J_BOLT_URL: Optional[str] = None
-    NEO4J_SUGGESTION_LIMIT: int = 8
-    NEO4J_RESULTS_LIMIT: int = 100
-
-    @validator("NEO4J_BOLT_URL", pre=True)
-    def get_neo4j_bolt_url(cls, v: str, values: Dict[str, Any]) -> str:
-        return f"{values.get('NEO4J_BOLT')}://{values.get('NEO4J_USERNAME')}:{values.get('NEO4J_PASSWORD')}@{values.get('NEO4J_SERVER')}:7687"
 
 
 settings = Settings()

@@ -1,10 +1,8 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING, Optional
-# from datetime import datetime
-from sqlalchemy import Column, ForeignKey, String, Boolean, DateTime
+from typing import TYPE_CHECKING
+from sqlalchemy import Column, String, Boolean, DateTime
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship, Mapped
-# from sqlalchemy.orm import mapped_column
 from sqlalchemy.dialects.postgresql import UUID
 from uuid import uuid4
 
@@ -29,4 +27,3 @@ class User(Base):
     refresh_tokens: Mapped[list["Token"]] = relationship(back_populates="authenticates", lazy="dynamic")
     balance = relationship("Balance", back_populates="user")
     transaction_event: Mapped[list["TransactionEvent"]] = relationship(back_populates='user')
-

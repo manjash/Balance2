@@ -1,1 +1,1 @@
-from .base_type import BaseEnum
+from .base_type import BaseEnum  # noqa: F401

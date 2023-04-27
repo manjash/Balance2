@@ -7,3 +7,6 @@ from app.models.balance import Balance  # noqa
 from app.models.transaction import Transaction  # noqa
 from app.models.transaction_event import TransactionEvent  # noqa
 from app.models.transaction_balance import TransactionBalance  # noqa
+from app.models.order import Order  # noqa
+from app.models.order_service_products import OrderServiceProducts  # noqa
+from app.models.service_product import ServiceProduct  # noqa
