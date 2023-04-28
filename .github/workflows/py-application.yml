@@ -38,6 +38,7 @@ jobs:
       if: |
         steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
     - name: Lint with flake8
+      working-directory: ./backend/app/
       run: |
         flake8 --extend-exclude=/.venv/ --max-line-length=120 app/
     - name: Build docker and launch docker app
