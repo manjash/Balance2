@@ -20,6 +20,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m venv .venv
+        ls
         . venv/bin/activate
         cd backend/app/
         poetry install --no-interaction
