@@ -28,8 +28,8 @@ def random_transaction_and_tr_event(
         "data": {},
         "type": random_lower_string(),
         "amount": amount,
-        "currency":  random_lower_string()[:3],
-        "category":  random_lower_string(),
+        "currency": random_lower_string()[:3],
+        "category": random_lower_string(),
         "user_id": user_id,
         "gateway_id": random_lower_string()
     }
@@ -70,11 +70,11 @@ def random_order(client: TestClient,
     all_osp_links_sp_ids = [a["service_product_id"] for a in all_osp_links]
 
     order = crud.order.get_by_id(db, order_id=order["id"])
-    order_service_products_link = [crud.order_service_products.get_by_order_id_sp_id(
-                    db,
-                    order_id=order.id,
-                    service_product_id=sp_id
-                )
-                    for sp_id in all_osp_links_sp_ids
-                ]
+    order_service_products_link = [crud.order_service_products
+                                   .get_by_order_id_sp_id(db,
+                                                          order_id=order.id,
+                                                          service_product_id=sp_id
+                                                          )
+                                   for sp_id in all_osp_links_sp_ids
+                                   ]
     return order, order_service_products_link

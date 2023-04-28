@@ -29,11 +29,11 @@ def create(
     osps = []
     for sp_id, sp_price in service_product_price_ids.items():
         obj_in = schemas.OrderServiceProductsCreate(
-                                            order_id=order.id,
-                                            service_product_id=sp_id,
-                                            price=sp_price,
-                                            status="authorised",
-                                            )
+                                                    order_id=order.id,
+                                                    service_product_id=sp_id,
+                                                    price=sp_price,
+                                                    status="authorised",
+                                                    )
         osps.append(crud.order_service_products.create(db, obj_in=obj_in))
     return order, osps
 
@@ -46,10 +46,7 @@ We'll send user_id, amount. And want to see balance before and after
 """
 
 
-@router.post("/captured_to_balance", response_model=Tuple[
-                                            schemas.Balance,
-                                            schemas.TransactionEvent]
-             )
+@router.post("/captured_to_balance", response_model=Tuple[schemas.Balance, schemas.TransactionEvent])
 def captured_money_to_balance(
     *,
     db: Session = Depends(deps.get_db),
@@ -60,10 +57,7 @@ def captured_money_to_balance(
     status of the transaction (captured or not) checked by some other service
     """
 
-    tr_event_in = crud.transaction_event.get_by_transaction_id(
-                                db,
-                                transaction_id=transaction_id
-                                )
+    tr_event_in = crud.transaction_event.get_by_transaction_id(db, transaction_id=transaction_id)
     balance_in = crud.balance.get_by_user_id(db, user_id=tr_event_in.user_id, with_lock=True)
     balance_out = crud.balance.update(db,
                                       db_obj=balance_in,

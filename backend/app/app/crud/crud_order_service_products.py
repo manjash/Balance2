@@ -24,16 +24,14 @@ class CRUDOrderServiceProduct(CRUDBase[OrderServiceProducts, OrderServiceProduct
                               ) -> Optional[OrderServiceProducts]:
         if not with_lock:
             db_obj = db.query(OrderServiceProducts)\
-                .filter(
-                    OrderServiceProducts.order_id == order_id,
-                    OrderServiceProducts.service_product_id == service_product_id
-                ).first()
+                .filter(OrderServiceProducts.order_id == order_id,
+                        OrderServiceProducts.service_product_id == service_product_id
+                        ).first()
         else:
             db_obj = db.query(OrderServiceProducts).with_for_update() \
-                .filter(
-                OrderServiceProducts.order_id == order_id,
-                OrderServiceProducts.service_product_id == service_product_id
-            ).first()
+                .filter(OrderServiceProducts.order_id == order_id,
+                        OrderServiceProducts.service_product_id == service_product_id
+                ).first()
         if not db_obj:
             raise HTTPException(status_code=400, detail="The order_service_product connection doesn't exist")
         return db_obj
@@ -63,13 +61,13 @@ class CRUDOrderServiceProduct(CRUDBase[OrderServiceProducts, OrderServiceProduct
         return db.query(ServiceProduct.title,
                         functions.sum(OrderServiceProducts.price)
                         )\
-            .filter(
-                OrderServiceProducts.service_product_id == ServiceProduct.id,
-                OrderServiceProducts.order_id.in_(order_ids),
-                OrderServiceProducts.status == 'captured'
-            )\
+            .filter(OrderServiceProducts.service_product_id == ServiceProduct.id,
+                    OrderServiceProducts.order_id.in_(order_ids),
+                    OrderServiceProducts.status == 'captured'
+                    )\
             .group_by(OrderServiceProducts.service_product_id,
-                      ServiceProduct.title)\
+                      ServiceProduct.title
+                      )\
             .all()
 
 

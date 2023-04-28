@@ -94,7 +94,7 @@ def test_get_balance_by_user_id(
 def test_balance_to_balance_transaction_enough_funds(
         client: TestClient, db: Session):
     amount = round(random.uniform(1., 1000.), 2)
-    amount_to_transfer = round(amount/2.3, 2)
+    amount_to_transfer = round(amount / 2.3, 2)
 
     user = create_random_user(db)
     user2 = create_random_user(db)
@@ -146,7 +146,7 @@ def test_balance_to_balance_transaction_enough_funds(
 def test_balance_to_balance_transaction_not_enough_funds(
         client: TestClient, db: Session):
     amount = round(random.uniform(1., 1000.), 2)
-    amount_to_transfer = round(amount*2.33, 2)
+    amount_to_transfer = round(amount * 2.33, 2)
 
     user, balance = create_random_user_with_balance(db, amount=amount)
     assert balance.amount == amount
