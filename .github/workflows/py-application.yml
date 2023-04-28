@@ -19,8 +19,6 @@ jobs:
       uses: snok/install-poetry@v1
     - name: Install dependencies
       run: |
-#        python -m pip install --upgrade pip
-#        pip install flake8 pytest coverage
         ls
         cd backend/app/
         poetry --project-file=pyproject.toml install --no-interaction
