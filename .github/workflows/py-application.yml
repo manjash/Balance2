@@ -21,8 +21,10 @@ jobs:
       run: |
         ls
         cd backend/app/
-        poetry --project-file=pyproject.toml install --no-interaction
-    - name: Analysing the code with pylint
+        poetry install --no-interaction
+        cd ..
+        cd ..
+    - name: Analysing the code with flake8
       run: |
         flake8 --extend-exclude=/.venv/ --max-line-length=120 backend/app/app/
     - name: Build docker and launch docker app
