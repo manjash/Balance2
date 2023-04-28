@@ -19,7 +19,8 @@ jobs:
       uses: snok/install-poetry@v1
     - name: Install dependencies
       run: |
-        . backend/app/venv/bin/activate
+        python -m venv venv
+        . venv/bin/activate
         cd backend/app/
         poetry install --no-interaction
         cd ../..
