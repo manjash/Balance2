@@ -31,7 +31,7 @@ class CRUDOrderServiceProduct(CRUDBase[OrderServiceProducts, OrderServiceProduct
             db_obj = db.query(OrderServiceProducts).with_for_update() \
                 .filter(OrderServiceProducts.order_id == order_id,
                         OrderServiceProducts.service_product_id == service_product_id
-                ).first()
+                        ).first()
         if not db_obj:
             raise HTTPException(status_code=400, detail="The order_service_product connection doesn't exist")
         return db_obj

@@ -36,7 +36,7 @@ def create_transaction(
         method=method,
         description=description,
         data=data,
-        )
+    )
     transaction = crud.transaction.create(db, obj_in=transaction_in)
     transaction_event_in = schemas.TransactionEventCreate(
         transaction_id=transaction.id,
@@ -46,7 +46,7 @@ def create_transaction(
         category=category,
         user_id=UUID(user_id),
         gateway_id=gateway_id,
-        )
+    )
     transaction_event = crud.transaction_event.create(db, obj_in=transaction_event_in)
     return transaction, transaction_event
 
@@ -76,10 +76,10 @@ def captured_money_to_balance(
                                 amount=transaction_in.amount
                                 )[1]
     crud.transaction_balance.create(
-                                db,
-                                obj_in=schemas.TransactionBalance(
-                                    transaction_id=transaction_id,
-                                    balance_id=balance_in.id,
-                                )
-                                )
+        db,
+        obj_in=schemas.TransactionBalance(
+            transaction_id=transaction_id,
+            balance_id=balance_in.id,
+        )
+    )
     return balance_in, transaction_in

@@ -29,11 +29,11 @@ def create(
     osps = []
     for sp_id, sp_price in service_product_price_ids.items():
         obj_in = schemas.OrderServiceProductsCreate(
-                                                    order_id=order.id,
-                                                    service_product_id=sp_id,
-                                                    price=sp_price,
-                                                    status="authorised",
-                                                    )
+            order_id=order.id,
+            service_product_id=sp_id,
+            price=sp_price,
+            status="authorised",
+        )
         osps.append(crud.order_service_products.create(db, obj_in=obj_in))
     return order, osps
 
