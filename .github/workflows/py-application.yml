@@ -19,11 +19,11 @@ jobs:
       uses: snok/install-poetry@v1
     - name: Install dependencies
       run: |
-        ls
+        python -m venv .venv
+        . venv/bin/activate
         cd backend/app/
         poetry install --no-interaction
-        cd ..
-        cd ..
+        cd ../..
     - name: Analysing the code with flake8
       run: |
         flake8 --extend-exclude=/.venv/ --max-line-length=120 backend/app/app/
