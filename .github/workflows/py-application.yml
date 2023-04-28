@@ -20,12 +20,15 @@ jobs:
     - name: Install dependencies
       run: |
         python -m venv venv
-         venv/bin/activate
+        . venv/bin/activate
         cd backend/app/
         poetry install --no-interaction
+        cd ../..
     - name: Analysing the code with flake8
       run: |
+        cd backend/app/
         poetry run flake8 --extend-exclude=/.venv/ --max-line-length=120 app/
+        cd ../..
     - name: Build docker and launch docker app
       run: |
         docker compose -f "docker-compose.yml" up --build -d
