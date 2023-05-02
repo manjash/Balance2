@@ -66,7 +66,8 @@ services:
         # Middleware to redirect www, and redirect HTTP to HTTPS
         # to disable www redirection remove the section: ${STACK_NAME?Variable not set}-www-redirect,
         - traefik.http.routers.${STACK_NAME?Variable not set}-proxy-http.middlewares=${STACK_NAME?Variable not set}-www-redirect,${STACK_NAME?Variable not set}-https-redirect
-
+    env_file:
+      - .env
   db:
     image: postgres:15
     volumes:
