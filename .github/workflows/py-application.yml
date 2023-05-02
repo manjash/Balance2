@@ -43,7 +43,7 @@ jobs:
         flake8 --extend-exclude=/.venv/ --max-line-length=120
     - name: Build docker and launch docker app
       run: |
-        TAG=prod docker compose -f "docker-compose.yml" up --build -d
+        TAG=prod docker compose -f "docker-compose.yml" config > docker-stack.yml up --build -d
     - name: Sleep for 10 seconds
       run: sleep 10s
       shell: bash
