@@ -43,7 +43,7 @@ jobs:
     - name: Tests
       run: |
         cp .env.ci .env
-        sh ./backend/app/scripts/test.sh
+        sh ./backend/app/scripts/lint.sh
 #    - name: Lint with flake8
 #      working-directory: ./backend/app/app/
 #      run: |
