@@ -41,14 +41,16 @@ jobs:
       if: |
         steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
     - name: Tests
-      run: sh ./scripts/test.sh
+      run: |
+        cp .env.ci .env
+        sh ./scripts/test.sh
 #    - name: Lint with flake8
 #      working-directory: ./backend/app/app/
 #      run: |
 #        flake8 --extend-exclude=/.venv/ --max-line-length=120
     - name: Build docker and launch docker app
       run: |
-        TAG=prod docker compose -f "docker-compose.yml" config > docker-stack.yml
+        TAG=prod sh ./scripts/build.sh
 #        TAG=prod docker compose -f "docker-compose.yml" config > docker-stack.yml up --build -d
     - name: Sleep for 10 seconds
       run: sleep 10s
