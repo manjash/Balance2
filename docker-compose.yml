@@ -3,7 +3,7 @@ services:
   proxy:
     image: traefik:v2.2
     networks:
-      - ${TRAEFIK_PUBLIC_NETWORK?Variable not set}
+      - ${TRAEFIK_PUBLIC_NETWORK}
       - default
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
