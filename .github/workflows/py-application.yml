@@ -21,7 +21,7 @@ jobs:
         pip install docker-auto-labels
     - name: Install pip dependencies
       run: |  
-        pip install flake8 pytest
+        pip install flake8 pytest black mypy
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
     - name: Install Poetry
       uses: snok/install-poetry@v1
