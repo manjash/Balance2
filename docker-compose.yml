@@ -115,7 +115,7 @@ services:
   flower:
     image: mher/flower:0.9.7
     networks:
-      - ${TRAEFIK_PUBLIC_NETWORK?Variable not set}
+      - "${TRAEFIK_PUBLIC_NETWORK?Variable not set}"
       - default
     env_file:
       - .env
