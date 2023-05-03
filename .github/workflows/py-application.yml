@@ -58,5 +58,5 @@ jobs:
       shell: bash
     - name: Test with pytest
       run: |
-        docker compose exec app sh scripts/test.sh -vv
-        coverage report
+        docker compose exec backend sh ./scripts/test.sh -vv
+        
