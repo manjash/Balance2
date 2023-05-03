@@ -59,6 +59,9 @@ def add_to_balance(
     user_id: str = Body(...),
     amount: float = Body(...),
 ) -> schemas.Balance:
+    """
+    Increase balance amount.
+    """
     balance_locked = crud.balance.get_by_user_id(db, user_id=UUID(user_id), with_lock=True)
     return crud.balance.update(db, db_obj=balance_locked, obj_in={"amount": balance_locked.amount + amount})
 
@@ -70,6 +73,9 @@ def withdraw_from_balance(
     user_id: str = Body(...),
     amount: float = Body(...),
 ) -> schemas.Balance:
+    """
+    Decrease balance amount.
+    """
     return add_to_balance(db=db, user_id=user_id, amount=-amount)
 
 
@@ -82,6 +88,13 @@ def reserve(
     order_id: str = Body(...),
     amount: float = Body(...),
 ) -> Any:
+    """
+    Assuming there was an order and transaction registered:
+    - reserve some amount off the balance
+    - create a link between
+        - the transaction and balance operation
+        - the order and the service / product the reservation is done for with status = "authorised"
+    """
     balance = crud.balance.get_by_user_id(db, user_id=UUID(user_id), with_lock=True)
     obj_in = {"amount": balance.amount - amount, "amount_reserved": balance.amount_reserved + amount}
     balance = crud.balance.update(db, db_obj=balance, obj_in=obj_in)
@@ -115,6 +128,10 @@ def reserve_capture(
     order_id: str = Body(...),
     amount: float = Body(...),
 ) -> Any:
+    """
+    - Capture the amount (or part of it) reserved on the balance account
+    - For the relevant order product / service link update status = "captured"
+    """
     balance_locked = crud.balance.get_by_user_id(db, user_id=UUID(user_id), with_lock=True)
     osp = crud.order_service_products.get_by_order_id_sp_id(
         db,
@@ -154,12 +171,6 @@ def reserve_refund(
 
     """
     The method reverts the amount reserved that was authorised but not yet captured
-    :param db:
-    :param user_id:
-    :param service_product_id:
-    :param order_id:
-    :param amount:
-    :return:
     """
     osp = crud.order_service_products.get_by_order_id_sp_id(
         db,
