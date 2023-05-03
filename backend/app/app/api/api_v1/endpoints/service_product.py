@@ -6,7 +6,6 @@ from sqlalchemy.orm import Session
 from app import crud, schemas
 from app.api import deps
 
-
 router = APIRouter()
 
 
@@ -18,14 +17,14 @@ def create_service_product(
     description: str = Body(...),
     price: float = Body(...),
     unit: str = Body(...),
-
 ) -> Any:
     """
     Create a new transaction.
     """
-    service_product_in = schemas.ServiceProductCreate(title=title,
-                                                      description=description,
-                                                      price=price,
-                                                      unit=unit,
-                                                      )
+    service_product_in = schemas.ServiceProductCreate(
+        title=title,
+        description=description,
+        price=price,
+        unit=unit,
+    )
     return crud.service_product.create(db, obj_in=service_product_in)

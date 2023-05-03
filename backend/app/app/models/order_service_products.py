@@ -1,15 +1,15 @@
 from typing import TYPE_CHECKING
-
-from sqlalchemy import Column, ForeignKey, Float, String
-from sqlalchemy.orm import relationship, Mapped
-from sqlalchemy.dialects.postgresql import UUID
 from uuid import uuid4
 
+from sqlalchemy import Column, Float, ForeignKey, String
+from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.orm import Mapped, relationship
 
 from app.db.base_class import Base
 
 if TYPE_CHECKING:
-    from . import Order, ServiceProduct  # noqa: F401
+    from . import Order  # noqa: F401
+    from . import ServiceProduct
 
 
 class OrderServiceProducts(Base):

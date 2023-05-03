@@ -1,17 +1,18 @@
 from typing import Optional
-from pydantic import BaseModel, Field
 from uuid import UUID
+
+from pydantic import BaseModel, Field
 
 
 # Shared properties
 class TransactionEventBase(BaseModel):
-    transaction_id: UUID = None
-    type: str = None
-    amount: float = None
-    currency: str = None
-    category: str = None
-    user_id: UUID = None
-    gateway_id: str = None
+    transaction_id: Optional[UUID] = None
+    type: Optional[str] = None
+    amount: Optional[float] = None
+    currency: Optional[str] = None
+    category: Optional[str] = None
+    user_id: Optional[UUID] = None
+    gateway_id: Optional[str] = None
 
 
 # Properties to receive via API on creation
@@ -28,13 +29,13 @@ class TransactionEventCreate(TransactionEventBase):
 # Properties to receive via API on update
 class TransactionEventUpdate(TransactionEventBase):
     original: None
-    transaction_id: UUID = None
-    type: str = None
-    amount: float = None
-    currency: str = None
-    category: str = None
-    user_id: UUID = None
-    gateway_id: str = None
+    transaction_id: Optional[UUID] = None
+    type: Optional[str] = None
+    amount: Optional[float] = None
+    currency: Optional[str] = None
+    category: Optional[str] = None
+    user_id: Optional[UUID] = None
+    gateway_id: Optional[str] = None
 
 
 class TransactionEventInDBBase(TransactionEventBase):

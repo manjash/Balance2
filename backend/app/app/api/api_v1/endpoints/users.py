@@ -1,4 +1,5 @@
 from typing import Any, List
+from uuid import UUID
 
 from fastapi import APIRouter, Body, Depends, HTTPException
 from fastapi.encoders import jsonable_encoder
@@ -8,7 +9,6 @@ from sqlalchemy.orm import Session
 from app import crud, models, schemas
 from app.api import deps
 from app.core import security
-from uuid import UUID
 
 router = APIRouter()
 
@@ -20,7 +20,6 @@ def create_user_profile(
     password: str = Body(...),
     email: EmailStr = Body(...),
     full_name: str = Body(None),
-
 ) -> Any:
     """
     Create new user without the need to be logged in.
@@ -82,11 +81,10 @@ def read_user(
 
 @router.get("/{user_id}", response_model=schemas.User)
 def get_user_by_user_id(
-        *,
-        db: Session = Depends(deps.get_db),
-        user_id: str,
-        current_user: models.User = Depends(deps.get_current_active_user),
-
+    *,
+    db: Session = Depends(deps.get_db),
+    user_id: str,
+    current_user: models.User = Depends(deps.get_current_active_user),
 ) -> Any:
     if not isinstance(UUID(user_id), UUID):
         raise HTTPException(status_code=400, detail="This user_id is invalid.")
@@ -163,9 +161,9 @@ def create_user(
 
 @router.post("/userInDB")
 def user_in_DB(
-        *,
-        db: Session = Depends(deps.get_db),
-        user_id: str = Body(...),
+    *,
+    db: Session = Depends(deps.get_db),
+    user_id: str = Body(...),
 ) -> Any:
     if not isinstance(UUID(user_id), UUID):
         raise HTTPException(status_code=400, detail="This user_id is invalid.")

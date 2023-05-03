@@ -1,10 +1,12 @@
 import logging
+
+from app.db.init_db import init_db
+from app.db.session import SessionLocal
+
 # from pathlib import Path
 # import json
 # from passlib.totp import generate_secret
 
-from app.db.init_db import init_db
-from app.db.session import SessionLocal
 # from app.core.config import settings
 #
 # from tenacity import after_log, before_log, retry, stop_after_attempt, wait_fixed

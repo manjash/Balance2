@@ -1,14 +1,15 @@
 from typing import Optional
-from pydantic import BaseModel, Field
 from uuid import UUID
+
+from pydantic import BaseModel, Field
 
 
 # Shared properties
 class TransactionBase(BaseModel):
-    gateway: str = None
-    method: str = None
-    description: str = None
-    data: str = None
+    gateway: Optional[str] = None
+    method: Optional[str] = None
+    description: Optional[str] = None
+    data: Optional[str] = None
 
 
 # Properties to receive via API on creation
@@ -24,10 +25,10 @@ class TransactionCreate(TransactionBase):
 # Properties to receive via API on update
 class TransactionUpdate(TransactionBase):
     original: None
-    gateway: str = None
-    method: str = None
-    description: str = None
-    data: dict = None
+    gateway: Optional[str] = None
+    method: Optional[str] = None
+    description: Optional[str] = None
+    data: Optional[dict] = None
 
 
 class TransactionInDBBase(TransactionBase):

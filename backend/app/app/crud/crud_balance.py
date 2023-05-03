@@ -1,13 +1,15 @@
 from __future__ import annotations
+
+from typing import Any, Dict, Optional, Tuple, Union
+from uuid import UUID as uuid_UUID
+
 from fastapi import HTTPException
-from sqlalchemy.orm import Session
-from typing import Optional, Union, Dict, Any, Tuple
 from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.orm import Session
 
 from app.crud.base import CRUDBase
 from app.models.balance import Balance
 from app.schemas.balance import BalanceCreate, BalanceUpdate
-from uuid import UUID as uuid_UUID
 
 
 class CRUDBalance(CRUDBase[Balance, BalanceCreate, BalanceUpdate]):
@@ -51,12 +53,13 @@ class CRUDBalance(CRUDBase[Balance, BalanceCreate, BalanceUpdate]):
             raise HTTPException(status_code=400, detail="Reserved balance can't be updated to negative")
         return super().update(db, db_obj=db_obj, obj_in=update_data)
 
-    def balance_to_balance_transfer(self,
-                                    db: Session,
-                                    from_user_id: UUID,
-                                    to_user_id: UUID,
-                                    amount: float,
-                                    ) -> Tuple[Balance, Balance]:
+    def balance_to_balance_transfer(
+        self,
+        db: Session,
+        from_user_id: UUID,
+        to_user_id: UUID,
+        amount: float,
+    ) -> Tuple[Balance, Balance]:
 
         balance_from = self.get_by_user_id(db, user_id=from_user_id, with_lock=True)
         if balance_from.amount < amount:

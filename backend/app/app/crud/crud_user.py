@@ -1,13 +1,13 @@
 from typing import Any, Dict, Optional, Union
+from uuid import UUID
 
 from sqlalchemy.orm import Session
 
 from app.core.security import get_password_hash, verify_password
 from app.crud.base import CRUDBase
 from app.models.user import User
-from app.schemas.user import UserCreate, UserInDB, UserUpdate
 from app.schemas.totp import NewTOTP
-from uuid import UUID
+from app.schemas.user import UserCreate, UserInDB, UserUpdate
 
 
 class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):

@@ -1,11 +1,11 @@
+import uuid
 from datetime import datetime, timedelta
-from typing import Any, Union, Optional
+from typing import Any, Optional, Union
 
 from jose import jwt
 from passlib.context import CryptContext
+from passlib.exc import MalformedTokenError, TokenError
 from passlib.totp import TOTP
-from passlib.exc import TokenError, MalformedTokenError
-import uuid
 
 from app.core.config import settings
 from app.schemas import NewTOTP

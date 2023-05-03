@@ -1,8 +1,8 @@
 from typing import Any
-from pydantic import EmailStr
 
 from fastapi import APIRouter, Body, Depends, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
+from pydantic import EmailStr
 from sqlalchemy.orm import Session
 
 from app import crud, models, schemas

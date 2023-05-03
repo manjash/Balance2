@@ -1,14 +1,15 @@
 from typing import Optional
-from pydantic import BaseModel, Field
 from uuid import UUID
+
+from pydantic import BaseModel, Field
 
 
 # Shared properties
 class OrderServiceProductsBase(BaseModel):
-    order_id: UUID = None
-    service_product_id: UUID = None
-    price: float = None
-    status: str = None
+    order_id: Optional[UUID] = None
+    service_product_id: Optional[UUID] = None
+    price: Optional[float] = None
+    status: Optional[str] = None
 
 
 # Properties to receive via API on creation
@@ -22,10 +23,10 @@ class OrderServiceProductsCreate(OrderServiceProductsBase):
 # Properties to receive via API on update
 class OrderServiceProductsUpdate(OrderServiceProductsBase):
     original: None
-    order_id: UUID = None
-    service_product_id: UUID = None
-    price: float = None
-    status: str = None
+    order_id: Optional[UUID] = None
+    service_product_id: Optional[UUID] = None
+    price: Optional[float] = None
+    status: Optional[str] = None
 
 
 class OrderServiceProductsInDBBase(OrderServiceProductsBase):

@@ -1,9 +1,11 @@
 from __future__ import annotations
-from pydantic import BaseModel, Field
+
+import json
+from datetime import date, datetime
 from typing import Optional
 from uuid import UUID
-from datetime import date, datetime
-import json
+
+from pydantic import BaseModel, Field
 
 from app.schema_types import BaseEnum
 
@@ -40,7 +42,8 @@ class MetadataBaseSchema(BaseSchema):
     # https://www.dublincore.org/specifications/dublin-core/dcmi-terms/#section-3
     title: Optional[str] = Field(None, description="A human-readable title given to the resource.")
     description: Optional[str] = Field(
-        None, description="A short description of the resource.",
+        None,
+        description="A short description of the resource.",
     )
     isActive: Optional[bool] = Field(default=True, description="Whether the resource is still actively maintained.")
     isPrivate: Optional[bool] = Field(

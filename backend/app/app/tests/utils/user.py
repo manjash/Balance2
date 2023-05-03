@@ -5,16 +5,14 @@ from sqlalchemy.orm import Session
 
 from app import crud
 from app.core.config import settings
-from app.models.user import User
 from app.models.balance import Balance
-from app.schemas.user import UserCreate, UserUpdate
+from app.models.user import User
 from app.schemas.balance import BalanceCreate
+from app.schemas.user import UserCreate, UserUpdate
 from app.tests.utils.utils import random_email, random_lower_string
 
 
-def user_authentication_headers(
-    *, client: TestClient, email: str, password: str
-) -> Dict[str, str]:
+def user_authentication_headers(*, client: TestClient, email: str, password: str) -> Dict[str, str]:
     data = {"username": email, "password": password}
 
     r = client.post(f"{settings.API_V1_STR}/login/oauth", data=data)
@@ -40,9 +38,9 @@ def create_random_user_with_balance(db: Session, amount=0) -> Tuple[User, Balanc
 
 
 def create_random_user_with_balance_reserve(
-        db: Session,
-        amount=0.,
-        amount_reserved=0.,
+    db: Session,
+    amount=0.0,
+    amount_reserved=0.0,
 ) -> Tuple[User, Balance]:
     user = create_random_user(db)
     balance_in = BalanceCreate(
@@ -50,17 +48,11 @@ def create_random_user_with_balance_reserve(
         amount=amount,
     )
     balance = crud.balance.create(db, obj_in=balance_in)
-    balance = crud.balance\
-        .update(db,
-                db_obj=balance,
-                obj_in={"amount_reserved": amount_reserved}
-                )
+    balance = crud.balance.update(db, db_obj=balance, obj_in={"amount_reserved": amount_reserved})
     return user, balance
 
 
-def authentication_token_from_email(
-    *, client: TestClient, email: str, db: Session
-) -> Dict[str, str]:
+def authentication_token_from_email(*, client: TestClient, email: str, db: Session) -> Dict[str, str]:
     """
     Return a valid token for the user with given email.
 

@@ -1,4 +1,5 @@
 from typing import Any, List, Tuple
+from uuid import UUID
 
 from fastapi import APIRouter, Body, Depends
 from sqlalchemy.orm import Session
@@ -20,10 +21,11 @@ def create(
     """
     Create a new order and order_service_product connections.
     """
-    order_in = schemas.OrderCreate(transaction_id=transaction_id,
-                                   status="pending",
-                                   amount=amount,
-                                   )
+    order_in = schemas.OrderCreate(
+        transaction_id=UUID(transaction_id),
+        status="pending",
+        amount=amount,
+    )
     order = crud.order.create(db, obj_in=order_in)
 
     osps = []
@@ -59,13 +61,12 @@ def captured_money_to_balance(
 
     tr_event_in = crud.transaction_event.get_by_transaction_id(db, transaction_id=transaction_id)
     balance_in = crud.balance.get_by_user_id(db, user_id=tr_event_in.user_id, with_lock=True)
-    balance_out = crud.balance.update(db,
-                                      db_obj=balance_in,
-                                      obj_in={"amount": balance_in.amount + tr_event_in.amount}
-                                      )
-    crud.transaction_balance.create(db,
-                                    obj_in=schemas.TransactionBalanceCreate(
-                                        transaction_id=transaction_id,
-                                        balance_id=balance_out.id,
-                                    ))
+    balance_out = crud.balance.update(db, db_obj=balance_in, obj_in={"amount": balance_in.amount + tr_event_in.amount})
+    crud.transaction_balance.create(
+        db,
+        obj_in=schemas.TransactionBalanceCreate(
+            transaction_id=UUID(transaction_id),
+            balance_id=balance_out.id,
+        ),
+    )
     return balance_out, tr_event_in

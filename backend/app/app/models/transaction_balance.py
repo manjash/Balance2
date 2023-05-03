@@ -1,20 +1,19 @@
 from typing import TYPE_CHECKING
-
-from sqlalchemy import Column, ForeignKey, DateTime
-from sqlalchemy.orm import relationship
-from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.sql import func
 from uuid import uuid4
 
+from sqlalchemy import Column, DateTime, ForeignKey
+from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.orm import relationship
+from sqlalchemy.sql import func
 
 from app.db.base_class import Base
 
 if TYPE_CHECKING:
-    from . import User, Transaction, Balance  # noqa: F401
+    from . import Balance  # noqa: F401
 
 
 class TransactionBalance(Base):
-    __tablename__ = 'transaction_balance'
+    __tablename__ = "transaction_balance"
 
     id = Column(UUID(as_uuid=True), primary_key=True, index=True, default=uuid4)
     balance_id = Column(UUID(as_uuid=True), ForeignKey("balance.id"))

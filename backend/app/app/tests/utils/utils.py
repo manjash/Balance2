@@ -3,6 +3,7 @@ import string
 from typing import Dict
 
 from fastapi.testclient import TestClient
+
 from app.core.config import settings
 
 
@@ -30,7 +31,7 @@ def random_service_product(client: TestClient) -> Dict:
     data = {
         "title": random_lower_string(),
         "description": random_lower_string(),
-        "price": round(random.uniform(1., 1000.), 2),
+        "price": round(random.uniform(1.0, 1000.0), 2),
         "unit": random_lower_string(),
     }
     r = client.post(f"{settings.API_V1_STR}/service_product/", json=data)

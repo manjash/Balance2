@@ -1,12 +1,12 @@
+import os
 from typing import Any, Tuple
+from uuid import UUID
 
 from fastapi import APIRouter, Body, Depends, HTTPException
 from sqlalchemy.orm import Session
+
 from app import crud, schemas
 from app.api import deps
-from uuid import UUID
-import os
-
 
 router = APIRouter()
 
@@ -54,77 +54,72 @@ def balance_to_balance_transaction(
 
 @router.post("/moneyIn", response_model=schemas.Balance)
 def add_to_balance(
-        *,
-        db: Session = Depends(deps.get_db),
-        user_id: str = Body(...),
-        amount: float = Body(...),
+    *,
+    db: Session = Depends(deps.get_db),
+    user_id: str = Body(...),
+    amount: float = Body(...),
 ) -> schemas.Balance:
     balance_locked = crud.balance.get_by_user_id(db, user_id=UUID(user_id), with_lock=True)
-    return crud.balance.update(db,
-                               db_obj=balance_locked,
-                               obj_in={
-                                   "amount": balance_locked.amount + amount
-                               })
+    return crud.balance.update(db, db_obj=balance_locked, obj_in={"amount": balance_locked.amount + amount})
 
 
 @router.post("/moneyOut", response_model=schemas.Balance)
 def withdraw_from_balance(
-        *,
-        db: Session = Depends(deps.get_db),
-        user_id: str = Body(...),
-        amount: float = Body(...),
+    *,
+    db: Session = Depends(deps.get_db),
+    user_id: str = Body(...),
+    amount: float = Body(...),
 ) -> schemas.Balance:
     return add_to_balance(db=db, user_id=user_id, amount=-amount)
 
 
 @router.post("/reserve", response_model=schemas.Balance)
-def reserve(*,
-            db: Session = Depends(deps.get_db),
-            user_id: str = Body(...),
-            service_product_id: str = Body(...),
-            order_id: str = Body(...),
-            amount: float = Body(...),
-            ) -> Any:
-    balance = crud.balance.get_by_user_id(db, user_id=user_id, with_lock=True)
-    obj_in = {
-        "amount": balance.amount - amount,
-        "amount_reserved": balance.amount_reserved + amount
-    }
+def reserve(
+    *,
+    db: Session = Depends(deps.get_db),
+    user_id: str = Body(...),
+    service_product_id: str = Body(...),
+    order_id: str = Body(...),
+    amount: float = Body(...),
+) -> Any:
+    balance = crud.balance.get_by_user_id(db, user_id=UUID(user_id), with_lock=True)
+    obj_in = {"amount": balance.amount - amount, "amount_reserved": balance.amount_reserved + amount}
     balance = crud.balance.update(db, db_obj=balance, obj_in=obj_in)
 
-    transaction_id = crud.order.get_by_id(db, order_id=order_id).transaction_id
+    transaction_id = crud.order.get_by_id(db, order_id=UUID(order_id)).transaction_id
     crud.transaction_balance.create(
         db,
         obj_in=schemas.TransactionBalanceCreate(
             transaction_id=transaction_id,
             balance_id=balance.id,
-        )
+        ),
     )
     crud.order_service_products.create(
         db,
         obj_in=schemas.OrderServiceProductsCreate(
-            order_id=order_id,
-            service_product_id=service_product_id,
+            order_id=UUID(order_id),
+            service_product_id=UUID(service_product_id),
             price=amount,
-            status='authorised',
-        )
+            status="authorised",
+        ),
     )
     return balance
 
 
 @router.post("/reserve/capture", response_model=Tuple[schemas.Balance, schemas.OrderServiceProducts])
-def reserve_capture(*,
-                    db: Session = Depends(deps.get_db),
-                    user_id: str = Body(...),
-                    service_product_id: str = Body(...),
-                    order_id: str = Body(...),
-                    amount: float = Body(...),
-                    ) -> Any:
+def reserve_capture(
+    *,
+    db: Session = Depends(deps.get_db),
+    user_id: str = Body(...),
+    service_product_id: str = Body(...),
+    order_id: str = Body(...),
+    amount: float = Body(...),
+) -> Any:
     balance_locked = crud.balance.get_by_user_id(db, user_id=UUID(user_id), with_lock=True)
     osp = crud.order_service_products.get_by_order_id_sp_id(
         db,
-        order_id=order_id,
-        service_product_id=service_product_id,
+        order_id=UUID(order_id),
+        service_product_id=UUID(service_product_id),
         with_lock=True,
     )
     if osp.price != amount:
@@ -132,8 +127,11 @@ def reserve_capture(*,
             status_code=400,
             detail="The amount to capture doesn't match the price of the service/product",
         )
-    if osp.status != 'authorised':
-        raise HTTPException(status_code=400, detail="The amount is not authorised", )
+    if osp.status != "authorised":
+        raise HTTPException(
+            status_code=400,
+            detail="The amount is not authorised",
+        )
     osp.status = "captured"
     balance_locked.amount_reserved -= amount
     db.add(osp)
@@ -145,13 +143,14 @@ def reserve_capture(*,
 
 
 @router.post("/reserve/refund", response_model=Tuple[schemas.Balance, schemas.OrderServiceProducts])
-def reserve_refund(*,
-                   db: Session = Depends(deps.get_db),
-                   user_id: str = Body(...),
-                   service_product_id: str = Body(...),
-                   order_id: str = Body(...),
-                   amount: float = Body(...),
-                   ) -> Any:
+def reserve_refund(
+    *,
+    db: Session = Depends(deps.get_db),
+    user_id: str = Body(...),
+    service_product_id: str = Body(...),
+    order_id: str = Body(...),
+    amount: float = Body(...),
+) -> Any:
 
     """
     The method reverts the amount reserved that was authorised but not yet captured
@@ -164,11 +163,11 @@ def reserve_refund(*,
     """
     osp = crud.order_service_products.get_by_order_id_sp_id(
         db,
-        order_id=order_id,
-        service_product_id=service_product_id,
+        order_id=UUID(order_id),
+        service_product_id=UUID(service_product_id),
         with_lock=True,
     )
-    balance_locked = crud.balance.get_by_user_id(db, user_id=user_id, with_lock=True)
+    balance_locked = crud.balance.get_by_user_id(db, user_id=UUID(user_id), with_lock=True)
     osp_status = osp.status
     if osp_status == "authorised":
         balance_locked.amount_reserved -= amount
@@ -190,15 +189,12 @@ def reserve_refund(*,
 
 
 @router.post("/accountantReport")
-def accountant_report(*,
-                      db: Session = Depends(deps.get_db),
-                      yyyymm: str = Body(...)
-                      ) -> Any:
+def accountant_report(*, db: Session = Depends(deps.get_db), yyyymm: str = Body(...)) -> Any:
     order_ids = crud.order.filter_by_date(db, yyyymm=yyyymm)
     report_data = crud.order_service_products.filter_by_order_ids(db, order_ids=order_ids)
     filename = "accountant_report_%s.csv" % yyyymm
     with open(filename, "w") as f:
         res = "service_title\tamount\n"
-        res += '\n'.join(['\t'.join([title, str(amount)]) for title, amount in report_data])
+        res += "\n".join(["\t".join([title, str(amount)]) for title, amount in report_data])
         f.write(res)
         return os.path.abspath(filename)

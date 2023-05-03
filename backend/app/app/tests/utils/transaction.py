@@ -1,22 +1,22 @@
 import random
-from typing import Tuple, Optional, List
+from typing import List, Optional, Tuple
 
-from fastapi.testclient import TestClient
 from fastapi import Body
+from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 
 from app import crud
 from app.core.config import settings
-from app.schemas import TransactionEvent, Transaction, Order, OrderServiceProducts
+from app.schemas import Order, OrderServiceProducts, Transaction, TransactionEvent
 from app.tests.utils.user import create_random_user
 from app.tests.utils.utils import random_lower_string, random_service_product
 
 
 def random_transaction_and_tr_event(
-        client: TestClient,
-        db: Session,
-        user_id: Optional[str] = Body(None),
-        amount=round(random.uniform(1., 1000.), 2),
+    client: TestClient,
+    db: Session,
+    user_id: Optional[str] = Body(None),
+    amount=round(random.uniform(1.0, 1000.0), 2),
 ) -> Tuple[Transaction, TransactionEvent]:
     if not user_id:
         user = create_random_user(db)
@@ -31,7 +31,7 @@ def random_transaction_and_tr_event(
         "currency": random_lower_string()[:3],
         "category": random_lower_string(),
         "user_id": user_id,
-        "gateway_id": random_lower_string()
+        "gateway_id": random_lower_string(),
     }
     r = client.post(f"{settings.API_V1_STR}/transaction/", json=data)
     transaction, t_event = r.json()
@@ -40,10 +40,11 @@ def random_transaction_and_tr_event(
     return db_transaction, db_transaction_event
 
 
-def random_order_service_products(client: TestClient,
-                                  db: Session,
-                                  transaction_id: str,
-                                  ) -> Tuple[Order, List[OrderServiceProducts]]:
+def random_order_service_products(
+    client: TestClient,
+    db: Session,
+    transaction_id: str,
+) -> Tuple[Order, List[OrderServiceProducts]]:
     service_products = {}
     for i in range(3):
         sp = random_service_product(client)
@@ -51,30 +52,24 @@ def random_order_service_products(client: TestClient,
     return random_order(client, db, service_products=service_products, transaction_id=transaction_id)
 
 
-def random_order(client: TestClient,
-                 db: Session,
-                 service_products: dict,
-                 transaction_id: str,
-                 ) -> Tuple[Order, List[OrderServiceProducts]]:
+def random_order(
+    client: TestClient,
+    db: Session,
+    service_products: dict,
+    transaction_id: str,
+) -> Tuple[Order, List[OrderServiceProducts]]:
     # fyi service_products = {service_product_id: price, ...}
     amount = sum(service_products.values())
 
-    data = {
-        "transaction_id": str(transaction_id),
-        "amount": amount,
-        "service_product_price_ids": service_products
-    }
+    data = {"transaction_id": str(transaction_id), "amount": amount, "service_product_price_ids": service_products}
 
     r = client.post(f"{settings.API_V1_STR}/order/", json=data)
     order, all_osp_links = r.json()
     all_osp_links_sp_ids = [a["service_product_id"] for a in all_osp_links]
 
     order = crud.order.get_by_id(db, order_id=order["id"])
-    order_service_products_link = [crud.order_service_products
-                                   .get_by_order_id_sp_id(db,
-                                                          order_id=order.id,
-                                                          service_product_id=sp_id
-                                                          )
-                                   for sp_id in all_osp_links_sp_ids
-                                   ]
+    order_service_products_link = [
+        crud.order_service_products.get_by_order_id_sp_id(db, order_id=order.id, service_product_id=sp_id)
+        for sp_id in all_osp_links_sp_ids
+    ]
     return order, order_service_products_link

@@ -3,9 +3,9 @@ import random
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 
-from app.tests.utils.utils import random_service_product
 from app.tests.utils.transaction import random_order, random_transaction_and_tr_event
 from app.tests.utils.user import create_random_user_with_balance_reserve
+from app.tests.utils.utils import random_service_product
 
 
 def arrange_for_balance_reserve(client: TestClient, db: Session, multiple_operation="*"):
@@ -13,9 +13,9 @@ def arrange_for_balance_reserve(client: TestClient, db: Session, multiple_operat
     sp_id, sp_price = service_product["id"], service_product["price"]
     service_product = {sp_id: sp_price}
 
-    balance_amount = round(sp_price * random.uniform(2., 4.), 2)
+    balance_amount = round(sp_price * random.uniform(2.0, 4.0), 2)
     if multiple_operation == "/":
-        balance_amount = round(sp_price / random.uniform(2., 4.), 2)
+        balance_amount = round(sp_price / random.uniform(2.0, 4.0), 2)
 
     user, balance = create_random_user_with_balance_reserve(
         db,
@@ -30,10 +30,5 @@ def arrange_for_balance_reserve(client: TestClient, db: Session, multiple_operat
     ospl = ospl[0]
     order_id = order.id
 
-    data = {
-        "user_id": str(user.id),
-        "service_product_id": str(sp_id),
-        "order_id": str(order_id),
-        "amount": sp_price
-    }
+    data = {"user_id": str(user.id), "service_product_id": str(sp_id), "order_id": str(order_id), "amount": sp_price}
     return sp_id, sp_price, user, balance, transaction, tr_event, order, ospl, data

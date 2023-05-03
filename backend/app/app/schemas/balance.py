@@ -1,12 +1,13 @@
 from typing import Optional
-from pydantic import BaseModel, Field
 from uuid import UUID
+
+from pydantic import BaseModel, Field
 
 
 # Shared properties
 class BalanceBase(BaseModel):
-    user_id: UUID = None
-    amount: float = None
+    user_id: Optional[UUID] = None
+    amount: Optional[float] = None
     amount_reserved: Optional[float] = None
 
 
@@ -19,8 +20,8 @@ class BalanceCreate(BalanceBase):
 
 # Properties to receive via API on update
 class BalanceUpdate(BalanceBase):
-    user_id: UUID = None
-    amount: float = None
+    user_id: Optional[UUID] = None
+    amount: Optional[float] = None
     amount_reserved: Optional[float] = None
 
 

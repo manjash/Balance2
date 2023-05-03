@@ -2,8 +2,8 @@ import os
 import secrets
 from typing import Any, Dict, List, Optional, Union
 
-from pydantic import AnyHttpUrl, BaseSettings, EmailStr, HttpUrl, PostgresDsn, validator
 from dotenv import load_dotenv
+from pydantic import AnyHttpUrl, BaseSettings, EmailStr, HttpUrl, PostgresDsn, validator
 
 load_dotenv()
 
@@ -17,8 +17,8 @@ class Settings(BaseSettings):
     REFRESH_TOKEN_EXPIRE_SECONDS: int = 60 * 60 * 24 * 30
     JWT_ALGO: str = "HS512"
     TOTP_ALGO: str = "SHA-1"
-    SERVER_NAME: str = None
-    SERVER_HOST: AnyHttpUrl = None
+    SERVER_NAME: Optional[str] = None
+    SERVER_HOST: Optional[AnyHttpUrl] = None
     SERVER_BOT: str = "Symona"
     # BACKEND_CORS_ORIGINS is a JSON-formatted list of origins
     # e.g: '["http://localhost", "http://localhost:4200", "http://localhost:3000", \

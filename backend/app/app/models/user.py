@@ -1,15 +1,18 @@
 from __future__ import annotations
+
 from typing import TYPE_CHECKING
-from sqlalchemy import Column, String, Boolean, DateTime
-from sqlalchemy.sql import func
-from sqlalchemy.orm import relationship, Mapped
-from sqlalchemy.dialects.postgresql import UUID
 from uuid import uuid4
+
+from sqlalchemy import Boolean, Column, DateTime, String
+from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.orm import Mapped, relationship
+from sqlalchemy.sql import func
 
 from app.db.base_class import Base
 
 if TYPE_CHECKING:
-    from . import Token, TransactionEvent, Balance  # noqa: F401
+    from . import Balance  # noqa: F401
+    from . import Token, TransactionEvent
 
 
 class User(Base):
@@ -26,4 +29,4 @@ class User(Base):
     is_superuser = Column(Boolean, default=False)
     refresh_tokens: Mapped[list["Token"]] = relationship(back_populates="authenticates", lazy="dynamic")
     balance = relationship("Balance", back_populates="user")
-    transaction_event: Mapped[list["TransactionEvent"]] = relationship(back_populates='user')
+    transaction_event: Mapped[list["TransactionEvent"]] = relationship(back_populates="user")
