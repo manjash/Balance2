@@ -53,10 +53,9 @@ jobs:
         TAG=prod sh ./scripts/build.sh
         docker compose up -d
 #        TAG=prod docker compose -f "docker-compose.yml" config > docker-stack.yml up --build -d
-    - name: Sleep for 10 seconds
-      run: sleep 10s
+    - name: Sleep for 20 seconds
+      run: sleep 20s
       shell: bash
     - name: Test with pytest
       run: |
         docker compose exec backend sh ./scripts/test.sh -vv
-        
