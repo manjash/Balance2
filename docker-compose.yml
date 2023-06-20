@@ -141,7 +141,8 @@ services:
   backend:
     image: "${DOCKER_IMAGE_BACKEND?Variable not set}:${TAG-latest}"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     logging:
       driver: "json-file"
       options:
@@ -163,12 +164,12 @@ services:
         BACKEND_PROCESS_MANAGER: ${BACKEND_PROCESS_MANAGER-gunicorn}
         BACKEND_WITH_RELOAD: ${BACKEND_WITH_RELOAD-false}
         INSTALL_DEV: ${INSTALL_DEV-false}
-#    deploy:
-#      labels:
-#        - traefik.enable=true
-#        - traefik.constraint-label-stack=${TRAEFIK_TAG?Variable not set}
-#        - traefik.http.routers.${STACK_NAME?Variable not set}-backend-http.rule=PathPrefix(`/api`) || PathPrefix(`/docs`) || PathPrefix(`/redoc`)
-#        - traefik.http.services.${STACK_NAME?Variable not set}-backend.loadbalancer.server.port=80
+    deploy:
+      labels:
+        - traefik.enable=true
+        - traefik.constraint-label-stack=${TRAEFIK_TAG?Variable not set}
+        - traefik.http.routers.${STACK_NAME?Variable not set}-backend-http.rule=PathPrefix(`/api`) || PathPrefix(`/docs`) || PathPrefix(`/redoc`)
+        - traefik.http.services.${STACK_NAME?Variable not set}-backend.loadbalancer.server.port=80
 
 #  celeryworker:
 #    image: "${DOCKER_IMAGE_CELERYWORKER?Variable not set}:${TAG-latest}"
