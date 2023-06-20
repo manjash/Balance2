@@ -34,12 +34,12 @@ jobs:
       with:
         path: .venv
         key: venv-${{ runner.os }}-${{ steps.full-python-version.outputs.version }}-${{ hashFiles('**/poetry.lock') }}
-    - name: Install dependencies
-      working-directory: ./backend/app/
-      run: |
-        poetry install --no-interaction
-      if: |
-        steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
+#    - name: Install dependencies
+#      working-directory: ./backend/app/
+#      run: |
+#        poetry install --no-interaction
+#      if: |
+#        steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
     - name: Tests
       run: |
         cp .env.ci .env
@@ -53,8 +53,8 @@ jobs:
         TAG=prod sh ./scripts/build.sh
         docker compose up -d
 #        TAG=prod docker compose -f "docker-compose.yml" config > docker-stack.yml up --build -d
-    - name: Sleep for 10 seconds
-      run: sleep 10s
+    - name: Sleep for 30 seconds
+      run: sleep 30s
       shell: bash
     - name: Docker ps
       run: docker ps
