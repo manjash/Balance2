@@ -57,7 +57,7 @@ jobs:
       run: sleep 30s
       shell: bash
     - name: Docker ps
-      run: docker ps
+      run: docker ps -a
     - name: Test with pytest
       run: |
         docker compose exec backend sh ./scripts/test.sh -vv
