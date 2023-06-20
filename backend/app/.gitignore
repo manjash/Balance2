@@ -17,7 +17,8 @@ sdist
 develop-eggs
 .installed.cfg
 pip-log.txt
-.coverage
 .tox
 *.mo
 .s3cfg
+venv
+.DS_Store
