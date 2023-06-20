@@ -15,12 +15,14 @@ from app.schemas.balance import BalanceCreate, BalanceUpdate
 class CRUDBalance(CRUDBase[Balance, BalanceCreate, BalanceUpdate]):
     # Everything is user-dependent
     def get_by_user_id(self, db: Session, *, user_id: uuid_UUID, with_lock=False) -> Optional[Balance]:
+        if not isinstance(UUID(user_id), UUID):
+            raise ValueError("Wrong user_id type")
         if not with_lock:
             db_obj = db.query(Balance).filter(Balance.user_id == user_id).first()
         else:
             db_obj = db.query(Balance).with_for_update().filter(Balance.user_id == user_id).first()
         if not db_obj:
-            raise HTTPException(status_code=400, detail="The user doesn't have a balance account")
+            raise HTTPException(status_code=406, detail="The user doesn't have a balance account")
         return db_obj
 
     def get_by_balance_id(self, db: Session, *, balance_id: uuid_UUID, with_lock=False) -> Optional[Balance]:

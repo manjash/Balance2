@@ -108,13 +108,7 @@ The structure of the report:
 - in your terminal go to `\balance` folder and type
 
 ```console
-$ docker-compose build
-```
-
-When the build is complete, do
-
-```console
-$ docker-compose up -d
+$ docker compose up --build -d
 ```
 
 ### Endpoints in action

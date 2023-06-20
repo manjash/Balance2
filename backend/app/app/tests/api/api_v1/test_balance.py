@@ -1,6 +1,8 @@
 import random
+import uuid
 from uuid import UUID
 
+import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 
@@ -52,7 +54,6 @@ def test_create_balance_non_zero(client: TestClient, db: Session):
 
 
 def test_create_balance_existing_user(client: TestClient, db: Session):
-    # valid user_id and invalid user_id
     user, balance = create_random_user_with_balance(db, amount=0)
     data = {"user_id": str(user.id)}
     r = client.post(
@@ -61,9 +62,26 @@ def test_create_balance_existing_user(client: TestClient, db: Session):
     )
     api_response = r.json()
     assert 400 == r.status_code
+
     assert "already registered" in api_response["detail"]
     users_with_user_id = db.query(Balance).filter(Balance.user_id == user.id).all()
     assert len(users_with_user_id) == 1
+
+
+@pytest.mark.parametrize(('user_id', 'message'), (
+    ('', 'badly formed hexadecimal UUID string'),
+    (12, 'badly formed hexadecimal UUID string'),
+    (str(uuid.uuid4())[:-1] + '$', 'invalid literal for int() with base 16:'),
+    (uuid.uuid4(), 'insert or update on table "balance" violates foreign key constraint'),
+))
+def test_create_balance_validation(client: TestClient, user_id, message):
+    data = {"user_id": str(user_id)}
+    with pytest.raises(Exception) as excinfo:
+        client.post(
+            f"{settings.API_V1_STR}/balance/",
+            json=data,
+        )
+    assert str(message) in str(excinfo.value)
 
 
 def test_get_balance_by_user_id(client: TestClient, db: Session):
@@ -86,6 +104,30 @@ def test_get_balance_by_user_id(client: TestClient, db: Session):
     assert db_balance.user_id == user.id
 
 
+@pytest.mark.parametrize(('user_id', 'message', 'status_code'), (
+    ('', 'Not Found', 404),
+    (12, 'badly formed hexadecimal UUID string', None),
+    (str(uuid.uuid4())[:-1] + '$', 'invalid literal for int() with base 16:', 400),
+    (uuid.uuid4(), "The user doesn't have a balance account", 406),
+))
+def test_get_balance_by_user_id_validation(client: TestClient, user_id, message, status_code):
+    # if status_code != 404:
+    # with pytest.raises(Exception) as excinfo:
+
+    if status_code in (404, 406):
+        r = client.get(
+            f"{settings.API_V1_STR}/balance/getBalance/{str(user_id)}",
+        )
+        assert r.status_code == status_code
+        assert message in r.json()["detail"]
+    else:
+        with pytest.raises(Exception) as excinfo:
+            r = client.get(
+                f"{settings.API_V1_STR}/balance/getBalance/{str(user_id)}",
+            )
+        assert str(message) in str(excinfo.value)
+
+
 def test_balance_to_balance_transaction_enough_funds(client: TestClient, db: Session):
     amount = round(random.uniform(1.0, 1000.0), 2)
     amount_to_transfer = round(amount / 2.3, 2)
@@ -99,7 +141,7 @@ def test_balance_to_balance_transaction_enough_funds(client: TestClient, db: Ses
         f"{settings.API_V1_STR}/balance/internalTransfer",
         json=data,
     )
-    assert 400 == r.status_code
+    assert 406 == r.status_code
     assert "The user doesn't have a balance account" in r.json()["detail"]
 
     balance_in = BalanceCreate(user_id=str(user.id), amount=amount)
@@ -112,7 +154,7 @@ def test_balance_to_balance_transaction_enough_funds(client: TestClient, db: Ses
         f"{settings.API_V1_STR}/balance/internalTransfer",
         json=data,
     )
-    assert 400 == r.status_code
+    assert 406 == r.status_code
     assert "The user doesn't have a balance account" in r.json()["detail"]
 
     # Test case when both accounts exist
