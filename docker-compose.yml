@@ -73,6 +73,11 @@ services:
       - app-db-data:/var/lib/postgresql/15/data/pgdata
     env_file:
       - .env
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
     environment:
       - PGDATA=/var/lib/postgresql/15/data/pgdata
     deploy:
