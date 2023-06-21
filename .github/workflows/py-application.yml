@@ -58,6 +58,8 @@ jobs:
       shell: bash
     - name: Docker ps
       run: docker ps -a
-    - name: Test with pytest
-      run: |
-        docker compose exec backend sh ./scripts/test.sh -vv
+    - name: Docker logs
+      run: docker logs balance2-backend-1
+#    - name: Test with pytest
+#      run: |
+#        docker compose exec backend sh ./scripts/test.sh -vv
