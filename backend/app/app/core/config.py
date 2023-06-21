@@ -2,10 +2,7 @@ import os
 import secrets
 from typing import Any, Dict, List, Optional, Union
 
-from dotenv import load_dotenv
 from pydantic import AnyHttpUrl, BaseSettings, EmailStr, HttpUrl, PostgresDsn, validator
-
-load_dotenv()
 
 
 class Settings(BaseSettings):
